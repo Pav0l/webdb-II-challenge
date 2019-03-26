@@ -8,14 +8,16 @@ const knex = require('knex')({
   }
 });
 
-const server = express();
+const app = express();
 
-server.use(express.json());
-server.use(helmet());
+app.use(express.json());
+app.use(helmet());
 
 // endpoints here
 
-server.post('/api/zoos', async (req, res) => {
+// [POST], '/api/zoos', req.body requires { name: "value" }
+// returns an array with the ID of newly created zoo
+app.post('/api/zoos', async (req, res) => {
   const zoo = req.body;
   if (zoo.name) {
     try {
@@ -29,8 +31,18 @@ server.post('/api/zoos', async (req, res) => {
   }
 });
 
+// [GET], '/api/zoos'
+// returns an array of zoos
+app.get('/api/zoos', async (req, res) => {
+  try {
+    const allZoos = await knex('zoos');
+    res.status(200).json(allZoos);
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+})
 
 const port = 3300;
-server.listen(port, function() {
+app.listen(port, function() {
   console.log(`\n=== Web API Listening on http://localhost:${port} ===\n`);
 });
