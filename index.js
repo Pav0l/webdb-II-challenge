@@ -40,7 +40,23 @@ app.get('/api/zoos', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error });
   }
-})
+});
+
+// [GET], '/api/zoos/:id'
+// returns an array of zoos
+app.get('/api/zoos/:id', async (req, res) => {
+  const zooId = req.params.id;
+  try {
+    const oneZoo = await knex('zoos').where('id', zooId);
+    if (oneZoo.length) {
+      res.status(200).json(oneZoo);
+    } else {
+      res.status(404).json({ message: `Zoo with ID ${zooId} does not exist.` });
+    }
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
 
 const port = 3300;
 app.listen(port, function() {
