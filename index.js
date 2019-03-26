@@ -17,6 +17,7 @@ app.use(helmet());
 
 // [POST], '/api/zoos', req.body requires { name: "value" }
 // returns an array with the ID of newly created zoo
+// INSERT INTO zoos ("name") VALUES ("req.body.name");
 app.post('/api/zoos', async (req, res) => {
   const zoo = req.body;
   if (zoo.name) {
@@ -33,6 +34,7 @@ app.post('/api/zoos', async (req, res) => {
 
 // [GET], '/api/zoos'
 // returns an array of zoos
+// SELECT * FROM zoos;
 app.get('/api/zoos', async (req, res) => {
   try {
     const allZoos = await knex('zoos');
@@ -44,6 +46,7 @@ app.get('/api/zoos', async (req, res) => {
 
 // [GET], '/api/zoos/:id'
 // returns an array of zoo object with specific ID
+// SELECT * FROM zoos WHERE id = req.params.id;
 app.get('/api/zoos/:id', async (req, res) => {
   const zooId = req.params.id;
   try {
@@ -59,7 +62,8 @@ app.get('/api/zoos/:id', async (req, res) => {
 });
 
 // [DELETE], '/api/zoos/:id'
-// returns an array of zoos
+// returns number of affected rows in DB
+// DELETE FROM zoos WHERE id = 4;
 app.delete('/api/zoos/:id', (req, res) => {
   const zooId = req.params.id;
   knex('zoos').where('id', zooId).del()
@@ -69,10 +73,30 @@ app.delete('/api/zoos/:id', (req, res) => {
       } else {
         res.status(404).json({ message: `Zoo with ID ${zooId} does not exist.` });
       }
-
     })  
     .catch(error => res.status(500).json({ error }));
+});
 
+// [PUT], '/api/zoos/:id', requires { name: "value" }
+// returns number of affected rows in DB
+// UPDATE zoos SET "name" = "Birdie" WHERE id = 7;
+app.put('/api/zoos/:id', (req, res) => {
+  const zooId = req.params.id;
+  const updatedZoo = req.body;
+  if (updatedZoo.name) {
+    knex('zoos').where('id', zooId).update(updatedZoo)
+      .then(newZoo => {
+        if (newZoo >= 1) {
+          return knex('zoos').where('id', zooId);
+        } else {
+          res.status(404).json({ message: `Zoo with ID ${zooId} does not exist.` });
+        }
+      })
+      .then(updatedZooObj => res.status(200).json(updatedZooObj)) 
+      .catch(error => res.status(500).json({ error }));
+  } else {
+    res.status(400).json({ message: 'Please include name inside the body of the request' });
+  }
 });
 
 
