@@ -1,5 +1,12 @@
 const express = require('express');
 const helmet = require('helmet');
+const knex = require('knex')({
+  client: 'sqlite',
+  useNullAsDefault: true,
+  connection: {
+    filename: './data/lambda.sqlite3',
+  }
+});
 
 const server = express();
 
@@ -7,6 +14,7 @@ server.use(express.json());
 server.use(helmet());
 
 // endpoints here
+
 
 const port = 3300;
 server.listen(port, function() {
