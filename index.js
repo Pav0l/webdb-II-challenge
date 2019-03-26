@@ -43,7 +43,7 @@ app.get('/api/zoos', async (req, res) => {
 });
 
 // [GET], '/api/zoos/:id'
-// returns an array of zoos
+// returns an array of zoo object with specific ID
 app.get('/api/zoos/:id', async (req, res) => {
   const zooId = req.params.id;
   try {
@@ -57,6 +57,24 @@ app.get('/api/zoos/:id', async (req, res) => {
     res.status(500).json({ error });
   }
 });
+
+// [DELETE], '/api/zoos/:id'
+// returns an array of zoos
+app.delete('/api/zoos/:id', (req, res) => {
+  const zooId = req.params.id;
+  knex('zoos').where('id', zooId).del()
+    .then(deletedZoo => {
+      if (deletedZoo >= 1) {
+        res.status(200).json(deletedZoo);
+      } else {
+        res.status(404).json({ message: `Zoo with ID ${zooId} does not exist.` });
+      }
+
+    })  
+    .catch(error => res.status(500).json({ error }));
+
+});
+
 
 const port = 3300;
 app.listen(port, function() {
